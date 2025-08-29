@@ -1,0 +1,325 @@
+body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: Arial, sans-serif;
+        }
+        
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+        
+        #sidePanel {
+			position: fixed;
+			right: -300px;
+			top: 40px;
+			width: 200px;
+			height: auto;
+			max-height: 80vh;
+			font-size: 12px;
+			background: rgba(20, 20, 30, 0.8); /* Darker semi-transparent background */
+			color: #ffffff; /* White text */
+			padding: 15px;
+			box-shadow: -2px 0 8px rgba(0, 0, 0, 0.2);
+			transition: right 0.3s ease-in-out;
+			border-radius: 8px 0 0 8px;
+			z-index: 1000;
+			overflow-y: auto;
+		}
+        
+		/* ... (existing #sidePanel styles) ... */
+
+		#sidePanel.open {
+			right: 0;
+		}
+
+		/* ===== INSERT NEW 2-COLUMN STYLES HERE ===== */
+		/* Split layer sections into 2 columns */
+		#baseMapsContainer,
+		#weatherLayersContainer,
+		#forecastElementsContainer {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 2px;
+		}
+
+		/* Widen side panel to accommodate 2 columns */
+		#sidePanel {
+			width: 325px;
+			right: -375px;
+			padding: 10px;
+		}
+
+		/* Adjust layer control items for grid layout */
+		.layer-control-item {
+			margin: 2px 0;
+			display: flex;
+			align-items: center;
+			font-size: 10px; /* Slightly smaller font */
+			flex-wrap: nowrap;
+		}
+
+		/* Make checkboxes smaller to fit better */
+		.layer-control-item input[type="checkbox"],
+		.layer-control-item input[type="radio"] {
+			margin-right: 6px;
+				transform: scale(0.9);
+		}
+
+		/* Better spacing for sec/tion headings */
+		.layer-section h3 {
+			margin: 10px 0 8px 0;
+			font-size: 12px;
+			color: #7fbfff;
+			grid-column: 1 / -1; /* Make headings span both columns */
+		}
+
+		/* Adjust panel content layout */
+		.panel-content {
+			display: grid;
+			gap: 8px;
+		}
+		/* ===== END OF 3COL PANEL STYLES ===== */
+
+/* ... (rest of your existing CSS continues below) ... */
+        
+        .panel-section {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 5px;
+        }
+        
+        .panel-section h3 {
+            margin: 0 0 8px 0;
+            font-size: 10px;
+            color: #005a9e;
+        }
+        
+        .layer-control-item {
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .layer-control-item input {
+            margin-right: 8px;
+        }
+        
+        #toggleBtn {
+            position: fixed;
+            right: 15px;
+            top: 10px;
+            background: #0078d4;
+            color: white;
+            padding: 6px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 1001;
+            font-size: 20px;
+        }
+        
+        #toggleBtn:hover {
+            background: #005a9e;
+        }
+        
+        .loading-indicator {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 4px;
+            z-index: 1002;
+        }
+
+        .flight-category-legend {
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 5px;
+            font-size: 10px;
+            line-height: 1.4;
+        }
+        
+        .flight-category-legend strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+		
+		/* Styling for the SIGMET legend */
+		.leaflet-control.sigmet-legend {
+			background: rgba(255, 255, 255, 0.9);
+			padding: 8px;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+			font-size: 10px;
+		}
+        
+        .leaflet-control-timecontrol {
+            padding: 5px;
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+            margin-bottom: 15px;
+        }
+        
+        .leaflet-control-layers label {
+            display: flex;
+            align-items: center;
+        }
+
+        /* Slider Control Styles */
+        #timeSliderControl {
+            position: fixed;
+            bottom: 5px;
+            left: 70%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 8px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            width: 400px;
+            max-width: 80%;
+        } 
+		
+        #timeSlider {
+            width: 150px;
+            margin: 0 5px;
+            vertical-align: middle;
+        }
+        
+        #sliderTimeDisplay {
+            text-align: center;
+            margin-top: 1px;
+			color: #000;
+            font-weight: bold;
+            font-size: 10px;
+        }
+        
+        .slider-btn {
+            padding: 3px 5px;
+            margin: 0 2px;
+            cursor: pointer;
+            background: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            height: 25px;
+            vertical-align: middle;
+        }
+        
+        .slider-btn:hover {
+            background: #005a9e;
+        }
+        
+        .slider-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Airport Marker Styles */
+        .station-label {
+			font-size: 7px;
+			font-weight: bold;
+			color: #1161a7;
+			pointer-events: none;
+			user-select: none;
+			text-shadow: none;
+			background: none;
+		}
+        
+        .airport-layer {
+            background-color: transparent;
+            border: none;
+            box-shadow: none;
+        }
+        
+        .airport-marker {
+            background-color: #0078d4;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            border: 1px solid white;
+        }
+        
+        .airport-marker:hover {
+            width: 10px;
+            height: 10px;
+        }
+
+        .layer-icon {
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: 5px;
+        }
+
+        .layer-icon.active {
+            border-color: #0078d4;
+        }
+
+        .sidebar-link {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #7fbfff;
+            text-decoration: none;
+        }
+
+        .contact-info {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+
+        .about-container {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .about-logo {
+            width: 150px;
+            margin-bottom: 20px;
+        }
+
+        /* Airport checkbox styling */
+        .airport-layer-checkbox {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e0e0e0;
+        }
+		
+		.leaflet-logo-control {
+			position: absolute !important;
+			top: 10px; /* Adjust vertical position */
+			right: 70px; /* Set right margin */
+			z-index: 1000;
+		}
+		
+		table {
+			width: 100%;  /* Fixed width */
+       }
+	   
+	   td, th {
+			padding: 4px;
+			text-align: left;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+		
+		.leaflet-popup-content pre {
+		max-height: 150px;
+		overflow-y: auto;
+		white-space: pre-wrap;
+		word-break: break-word;
+    }

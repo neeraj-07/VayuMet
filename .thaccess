@@ -1,0 +1,16 @@
+RewriteEngine On
+
+# Force HTTPS (optional but recommended)
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Redirect to .in domain (standard redirect, not proxy)
+RewriteCond %{HTTP_HOST} ^(www\.)?vayumetweather\.in$ [NC]
+RewriteRule ^(.*)$ https://vayumetweather.com/$1 [R=301,L]
+
+# Enable caching for better performance (optional)
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/jpg "access 1 year"
+  ExpiresByType text/css "access 1 month"
+</IfModule>

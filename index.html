@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VayuMet Weather – Real-Time Weather Forecasts, Radar, Aviation, Solar & Wind Energy Overlays</title>
+    
+    <meta name="description" content="Interactive weather dashboard with real-time radar, aviation overlays, and Solar & Wind Estimate forecast layers. Powered by VayuMet for industry, professionals and enthusiasts.">
+    <meta name="keywords" content="weather map, aviation weather, radar, forecast, SIGMET, METAR, TAF, VayuMet, Solar & Wind Energy, leaflet map">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="VayuMet Weather">
+    <meta property="og:description" content="Explore live weather radar, aviation forecasts, Solar & Wind Energy Potential Layers with VayuMet.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vayumetweather.com">
+    <meta property="og:image" content="https://vayumetweather.com/assets/preview.jpg">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="VayuMet Weather Dashboard">
+    <meta name="twitter:description" content="Interactive weather visualization with radar, forecasts, and aviation layers.">
+    <meta name="twitter:image" content="https://vayumetweather.com/assets/preview.jpg">
+    
+    <!-- Favicon & Theme -->
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <meta name="theme-color" content="#1e1e1e">
+	
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="./styles/leaflet.css"/>
+    
+    <!-- TimeDimension CSS -->
+    <link rel="stylesheet" href="./styles/leaflet.timedimension.control.min.css"/>
+	
+	<!--leaflet-velocity CSS-->
+    <link rel="stylesheet" href="./styles/leaflet-velocity.css" />
+	
+	<!-- Fullscreen Plugin CSS -->
+    <link rel="stylesheet" href="./styles/Control.FullScreen.css"/>
+	<link rel="stylesheet" href="style.css"/>
+
+</head>
+<body>
+    <div id="map"></div>
+    <div id="sidePanel" class="closed">
+        <button id="toggleBtn">Menu ☰</button>
+        <div class="panel-content">
+            <h2>Layers</h2>
+            <div class="layer-section">
+                <h3>Base Maps</h3>
+                <div id="baseMapsContainer">
+                    <!-- Base map radio buttons will be inserted here by JavaScript -->
+                    <div class="layer-control-item">
+                        <input type="checkbox" id="base-Airports">
+                        <label for="base-Airports">Airports</label>
+                    </div>
+                </div>
+            </div>
+            <div class="layer-section">
+                <h3>Current</h3>
+                <div id="weatherLayersContainer">
+                    <!-- Weather layer checkboxes will be inserted here by JavaScript -->
+                </div>
+            </div>
+            <div class="layer-section">
+                <h3>Forecast</h3>
+                <div id="forecastElementsContainer">
+                    <!-- Forecast element checkboxes will be inserted here by JavaScript -->
+                </div>
+            </div>
+            <div class="layer-section">
+                <a href="about.html" class="sidebar-link">About Us</a>
+                <p class="contact-info">contact@vayumetweather.com</p>
+            </div>
+        </div>
+        <div id="timeSliderControl" style="display:none;">
+            <span id="sliderTimeDisplay"></span>
+            <input type="range" id="timeSlider" min="0" max="40" value="0" step="1">
+            <button id="sliderBackBtn">«</button>
+            <button id="sliderPlayBtn">⏵</button>
+            <button id="sliderForwardBtn">»</button>
+        </div>
+    </div>
+    <div id="loadingIndicator" style="display:none;">Loading...</div>
+
+    <!-- JavaScript Libraries -->
+    <script src="./js/leaflet.js"></script>
+    <script src="./js/iso8601.min.js"></script>
+    <script src="./js/leaflet.timedimension.min.js"></script>
+    <script src="./js/papaparse.min.js"></script>
+	<!--vendor-->
+    <script src="./js/jquery-2.2.4.min.js"></script>
+	<!-- Laeflet-velocity script -->
+	<script src="./js/leaflet-velocity.js"></script>
+	<script src="./js/leaflet-velocity.min.js"></script>
+    
+	<!-- Fullscreen Plugin JS -->
+    <script src="./js/Control.FullScreen.js"></script>
+    <script src="./src/Rainviewer.js"></script>
+    <!-- Your modularized JavaScript, marked as a module -->
+    <script type="module" src="./main.js"></script>
+</body>
+</html>
