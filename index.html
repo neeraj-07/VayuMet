@@ -48,7 +48,7 @@
             <div class="layer-section">
                 <h3>Base Maps</h3>
                 <div id="baseMapsContainer">
-                    <!-- Base map radio buttons will be inserted here by JavaScript -->
+                    <!--Base map radio buttons will be inserted here by JavaScript -->
                     <div class="layer-control-item">
                         <input type="checkbox" id="base-Airports">
                         <label for="base-Airports">Airports</label>
@@ -72,13 +72,30 @@
                 <p class="contact-info">contact@vayumetweather.com</p>
             </div>
         </div>
-        <div id="timeSliderControl" style="display:none;">
-            <span id="sliderTimeDisplay"></span>
-            <input type="range" id="timeSlider" min="0" max="40" value="0" step="1">
-            <button id="sliderBackBtn">«</button>
-            <button id="sliderPlayBtn">⏵</button>
-            <button id="sliderForwardBtn">»</button>
-        </div>
+      
+        <div id="timeSliderControl" style="display: none;">
+    <div class="time-display">
+        <span id="sliderTimePrimary">Forecast +0 hr</span>
+        <span id="sliderTimeSecondary">MON, 00:00 UTC</span>
+    </div>
+    
+    <div class="slider-container">
+        <input type="range" id="timeSlider" min="0" max="40" value="0" step="1">
+    </div>
+
+    <div class="slider-controls">
+        <button id="sliderBackBtn" class="slider-btn" aria-label="Previous">
+            <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"></path></svg>
+        </button>
+        <button id="sliderPlayBtn" class="slider-btn play-btn" aria-label="Play/Pause">
+            <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
+            <svg class="icon-pause" viewBox="0 0 24 24" style="display: none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>
+        </button>
+        <button id="sliderForwardBtn" class="slider-btn" aria-label="Next">
+            <svg viewBox="0 0 24 24"><path d="M16 6h2v12h-2zm-3.5 6l-8.5 6V6z"></path></svg>
+        </button>
+    </div>
+</div>
     </div>
     <div id="loadingIndicator" style="display:none;">Loading...</div>
 

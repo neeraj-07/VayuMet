@@ -1,4 +1,3 @@
-// forecastSlider.js
 import { weatherElements, imageBounds } from './constants.js';
 import { showLoading } from './utils.js';
 
@@ -8,12 +7,21 @@ let currentForecastLayer = null;
 let currentForecastConfig = null;
 let mapInstance = null; // Store map instance
 
+// --- DOM Element Cache ---
+const timeSlider = document.getElementById('timeSlider');
+const sliderPlayBtn = document.getElementById('sliderPlayBtn');
+const iconPlay = sliderPlayBtn.querySelector('.icon-play');
+const iconPause = sliderPlayBtn.querySelector('.icon-pause');
+const timePrimaryDisplay = document.getElementById('sliderTimePrimary');
+const timeSecondaryDisplay = document.getElementById('sliderTimeSecondary');
+
 export function initForecastSlider(map) {
     mapInstance = map;
-    const timeSlider = document.getElementById('timeSlider');
+    
     timeSlider.addEventListener('input', function() {
         const hourIndex = parseInt(this.value);
         updateForecastLayer(hourIndex);
+        updateSliderProgress(this);
     });
 
     document.getElementById('sliderBackBtn').addEventListener('click', function() {
@@ -21,6 +29,7 @@ export function initForecastSlider(map) {
         if (currentValue > 0) {
             timeSlider.value = currentValue - 1;
             updateForecastLayer(currentValue - 1);
+            updateSliderProgress(timeSlider);
         }
     });
 
@@ -29,16 +38,19 @@ export function initForecastSlider(map) {
         if (currentValue < 40) {
             timeSlider.value = currentValue + 1;
             updateForecastLayer(currentValue + 1);
+            updateSliderProgress(timeSlider);
         }
     });
 
-    document.getElementById('sliderPlayBtn').addEventListener('click', function() {
+    sliderPlayBtn.addEventListener('click', function() {
         if (isSliderPlaying) {
             pauseSlider();
         } else {
             playSlider();
         }
     });
+    
+    updateSliderProgress(timeSlider); // Initialize slider progress color
 }
 
 export function updateForecastLayer(hourIndex) {
@@ -55,21 +67,28 @@ export function updateSliderDisplay(hourIndex) {
     if (!currentForecastConfig) return;
 
     const hours = hourIndex * 6;
-    const day = Math.floor(hours / 24) + 1;
-    const hour = hours % 24;
-    const timeString = `Day ${day} ${hour.toString().padStart(2, '0')}:00 Z`;
+    const now = new Date();
+    const forecastDate = new Date(now.getTime() + hours * 60 * 60 * 1000);
+    const dayName = forecastDate.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+    const timeString = forecastDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC' }) + ' UTC';
 
-    document.getElementById('sliderTimeDisplay').textContent =
-        `${currentForecastConfig.name} ${timeString}`;
+    timePrimaryDisplay.textContent = `${currentForecastConfig.name} +${hours} hr`;
+    timeSecondaryDisplay.textContent = `${dayName}, ${timeString}`;
+}
+
+function updateSliderProgress(slider) {
+    const percentage = (slider.value - slider.min) / (slider.max - slider.min) * 100;
+    const color = `linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) ${percentage}%, #333 ${percentage}%)`;
+    slider.style.background = color;
 }
 
 export function playSlider() {
     if (isSliderPlaying) return;
 
     isSliderPlaying = true;
-    document.getElementById('sliderPlayBtn').textContent = '⏸';
+    iconPlay.style.display = 'none';
+    iconPause.style.display = 'block';
 
-    const timeSlider = document.getElementById('timeSlider');
     let currentValue = parseInt(timeSlider.value);
 
     currentSliderInterval = setInterval(() => {
@@ -80,12 +99,15 @@ export function playSlider() {
         currentValue++;
         timeSlider.value = currentValue;
         updateForecastLayer(currentValue);
+        updateSliderProgress(timeSlider);
     }, 1000);
 }
 
 export function pauseSlider() {
     isSliderPlaying = false;
-    document.getElementById('sliderPlayBtn').textContent = '⏵';
+    iconPlay.style.display = 'block';
+    iconPause.style.display = 'none';
+    
     if (currentSliderInterval) {
         clearInterval(currentSliderInterval);
         currentSliderInterval = null;
