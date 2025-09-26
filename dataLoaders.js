@@ -26,6 +26,7 @@ export function loadAirports(map) {
             showLoading(false);
         },
         error: function(error) { console.error("Error loading airport data:", error); showLoading(false); }
+
     });
 }
 
@@ -71,28 +72,115 @@ export function loadMETARs() {
     });
 }
 
-export function loadTAFs() {
+export async function loadTAFs() {
     showLoading(true);
-    Papa.parse("./currentwx/tafs.csv", {
-        download: true,
-        header: true,
-        skipEmptyLines: true,
-        complete: function(results) {
-            tafLayer.clearLayers();
-            tafMarkers = {};
-            results.data.forEach(row => {
-                if (row.latitude && row.longitude && row.raw_text) {
-                    let marker = L.circleMarker([parseFloat(row.latitude), parseFloat(row.longitude)], {
-                        radius: 4, fillColor: "#800080", color: "#000", weight: 1, opacity: 1, fillOpacity: 0.8
-                    }).bindPopup(createTAFPopup(row), { maxWidth: 700 });
-                    marker.addTo(tafLayer);
-                    tafMarkers[row.station_id] = marker;
+
+    try {
+        // Fetch both XML files at the same time for efficiency
+        const [tafResponse, stationsResponse] = await Promise.all([
+            fetch("./currentwx/taf.xml"),
+            fetch("./map/stations.xml") // Make sure this path is correct
+        ]);
+
+        const tafStr = await tafResponse.text();
+        const stationsStr = await stationsResponse.text();
+        const parser = new DOMParser();
+
+        // 1. Create a map of station IDs to station names from stations.xml
+        // The key will be the ICAO code (e.g., "KGRK")
+        const stationsDoc = parser.parseFromString(stationsStr, "application/xml");
+        const stationNodes = stationsDoc.getElementsByTagName("Station");
+        const stationNameMap = {};
+        for (const node of stationNodes) {
+            const id = node.querySelector("station_id")?.textContent;
+            const name = node.querySelector("site")?.textContent;
+            if (id && name) {
+                stationNameMap[id] = name;
+            }
+        }
+
+        // 2. Parse the TAF data
+        const xmlDoc = parser.parseFromString(tafStr, "application/xml");
+        tafLayer.clearLayers();
+        tafMarkers = {};
+
+        const tafNodes = xmlDoc.getElementsByTagName("TAF");
+        for (let i = 0; i < tafNodes.length; i++) {
+            const tafNode = tafNodes[i];
+
+            // This is the ICAO code (e.g., "KGRK")
+            const stationId = tafNode.querySelector("station_id")?.textContent || "Unknown";
+            const lat = parseFloat(tafNode.querySelector("latitude")?.textContent || "0");
+            const lon = parseFloat(tafNode.querySelector("longitude")?.textContent || "0");
+            
+            if (!lat || !lon) continue;
+
+            // ... (rest of your TAF parsing logic for forecasts, etc.)
+            const rawText = tafNode.querySelector("raw_text")?.textContent?.trim() || "No raw text";
+            const issueTime = tafNode.querySelector("issue_time")?.textContent || "N/A";
+            const validFrom = tafNode.querySelector("valid_time_from")?.textContent || "N/A";
+            const validTo = tafNode.querySelector("valid_time_to")?.textContent || "N/A";
+            const forecastNodes = tafNode.getElementsByTagName("forecast");
+            const forecasts = [];
+            for (let j = 0; j < forecastNodes.length; j++) {
+                const fc = forecastNodes[j];
+                const fcstFrom = fc.querySelector("fcst_time_from")?.textContent || "N/A";
+                const fcstTo = fc.querySelector("fcst_time_to")?.textContent || "N/A";
+                const change = fc.querySelector("change_indicator")?.textContent || "N/A";
+                const windDir = fc.querySelector("wind_dir_degrees")?.textContent || "VRB";
+                const windSpeed = fc.querySelector("wind_speed_kt")?.textContent || "0";
+                const gust = fc.querySelector("wind_gust_kt")?.textContent;
+                const wind = gust ? `${windDir}°/${windSpeed} (gust ${gust})` : `${windDir}°/${windSpeed}`;
+                const wxStr = fc.querySelector('wx_string')?.textContent || 'N/A';
+                const visStr = fc.querySelector("visibility_statute_mi")?.textContent || "N/A";
+                let visM = "N/A";
+                if (visStr !== "N/A") {
+                    const num = parseFloat(visStr);
+                    if (!isNaN(num)) {
+                        visM = Math.round(num * 1609.34) + " m";
+                    }
                 }
-            });
-            showLoading(false);
-        },
-        error: function(error) { console.error("Error loading TAF data:", error); showLoading(false); }
-    });
+                forecasts.push({
+                    fcst_time_from: fcstFrom,
+                    fcst_time_to: fcstTo,
+                    change,
+                    wind,
+                    wxStr,
+                    visibility: visM
+                });
+            }
+
+            // 3. Look up the station name using the ICAO code
+            const stationName = stationNameMap[stationId] || stationId; // Fallback to ID if not found
+
+            // 4. Build the data object for the popup
+            const popupData = {
+                station_name: stationName, // The full name (e.g., "Gray Army Airfield")
+                station_id: stationId,     // The ICAO code (e.g., "KGRK")
+                raw_text: rawText,
+                issue_time: issueTime,
+                valid_time_from: validFrom,
+                valid_time_to: validTo,
+                forecasts
+            };
+
+            const marker = L.circleMarker([lat, lon], {
+                radius: 4,
+                fillColor: "#800080",
+                color: "#000",
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.8
+            }).bindPopup(createTAFPopup(popupData), { maxWidth: 700 });
+
+            marker.addTo(tafLayer);
+            tafMarkers[stationId] = marker;
+        }
+    } catch (err) {
+        console.error("Error loading TAF or Station XML:", err);
+    } finally {
+        showLoading(false);
+    }
 }
 
 export function loadBoundary(map) {

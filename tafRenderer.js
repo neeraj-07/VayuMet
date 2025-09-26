@@ -1,17 +1,56 @@
 // tafRenderer.js
 import { formatForecastTime, getWeatherColor } from './utils.js';
 
-export function createTAFPopup(row) {
-    return `
-        <div style="width: 500px; max-width: 500px; overflow-x: auto;">
-            <strong>TAF for ${row.station_id} VALID FROM ${row.valid_time_from} TO ${row.valid_time_to}</strong>
-            <hr>
-            ${row.raw_text.replace(/\n/g, '<br>')}
-            <hr>
-            ${createForecastTable(row)}
-        </div>
+// tafRenderer.js
+// import { formatDateTime } from './utils.js';
+
+
+import { formatDateTime } from './utils.js';
+
+export function createTAFPopup(data) {
+    console.log("Creating TAF popup for data:", );
+    let popup = `
+        <h3>Station: ${data.station_id}</h3>
+        <h3>Station Name: ${data.station_name}</h3>
+        <p>Valid: ${formatDateTime(data.valid_time_from)} to ${formatDateTime(data.valid_time_to)}</p>
+        <div class="raw-text-container">${data.raw_text}</div>
+        <h4>Forecast Details</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Time From</th>
+                    <th>Time To</th>
+                    <th>Change</th>
+                    <th>Wind (kt)</th>
+                    <th>Weather</th>
+                    <th>Visibility (m)</th>
+                </tr>
+            </thead>
+            <tbody>
     `;
+
+    if (data.forecasts?.length > 0) {
+        data.forecasts.forEach(fc => {
+            popup += `
+                <tr>
+                    <td>${formatDateTime(fc.fcst_time_from)}</td>
+                    <td>${formatDateTime(fc.fcst_time_to)}</td>
+                    <td>${fc.change}</td>
+                    <td>${fc.wind}</td>
+                    <td style="${getWeatherColor(fc.wxStr)}">${fc.wxStr}</td>
+                    <td>${fc.visibility}</td>
+                </tr>
+            `;
+        });
+    } else {
+        popup += `<tr><td colspan="5">No forecast data available for this station.</td></tr>`;
+    }
+
+    popup += `</tbody></table>`;
+    return popup;
 }
+
+
 
 export function createForecastTable(row) {
     let forecastRows = generateForecastRows(row);

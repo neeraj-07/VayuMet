@@ -20,6 +20,19 @@ export function getWeatherIcon(condition) {
     return encodeURI(`./icon/${weatherIcons[condition] || weatherIcons["CLR"]}`);
 }
 
+export function formatDateTime(isoStr) {
+    if (!isoStr) return "N/A";
+    const d = new Date(isoStr);
+    if (isNaN(d)) return isoStr; // fallback if not ISO
+    const day = String(d.getUTCDate()).padStart(2, '0');
+    const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const year = d.getUTCFullYear();
+    const hours = String(d.getUTCHours()).padStart(2, '0');
+    const minutes = String(d.getUTCMinutes()).padStart(2, '0');
+    return `${day}/${month}/${year} ${hours}:${minutes} UTC`;
+}
+
+
 export function getSkyCover(row) {
     let covers = [row.sky_cover_1, row.sky_cover_2, row.sky_cover_3].filter(c => c);
     if (row.raw_text.includes("CAVOK")) return "CLR/FINE";
